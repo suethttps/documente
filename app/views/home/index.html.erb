@@ -1,0 +1,135 @@
+<% content_for :head do %>
+  <%= javascript_import_module_tag "landing" %>
+<% end %>
+
+<%# Fundo com camadas parallax (orbs e grade se movem em velocidades diferentes) %>
+<div class="lp-bg" aria-hidden="true">
+  <div class="lp-orb lp-orb-1" data-parallax="-0.25"></div>
+  <div class="lp-orb lp-orb-2" data-parallax="-0.45"></div>
+  <div class="lp-orb lp-orb-3" data-parallax="-0.15"></div>
+  <div class="lp-grid-bg" data-parallax="-0.08"></div>
+</div>
+
+<header class="lp-nav">
+  <div class="lp-container lp-nav-inner">
+    <a class="lp-logo" href="/"><span class="lp-logo-mark">d.</span> documente</a>
+    <nav class="lp-nav-links">
+      <a href="#recursos">Recursos</a>
+      <a href="#como-funciona">Como funciona</a>
+      <a class="lp-btn lp-btn-ghost" href="/login">Entrar</a>
+      <a class="lp-btn lp-btn-primary" href="/login?tab=registro">Criar conta grátis</a>
+    </nav>
+  </div>
+</header>
+
+<main>
+  <section class="lp-hero">
+    <div class="lp-container">
+      <div class="lp-badge reveal">⚡ Colaboração em tempo real com CRDT</div>
+      <h1 class="reveal">A documentação do seu time,<br><span class="lp-grad">escrita por todos ao mesmo tempo.</span></h1>
+      <p class="lp-sub reveal">O documente é um espaço de documentação colaborativa estilo wiki: páginas hierárquicas,
+      edição em tempo real com os cursores de cada pessoa, e exportação em Markdown com um clique.</p>
+      <div class="lp-cta reveal">
+        <a class="lp-btn lp-btn-primary lp-btn-lg" href="/login?tab=registro">Começar agora — é grátis</a>
+        <a class="lp-btn lp-btn-ghost lp-btn-lg" href="/app">Já tenho conta</a>
+      </div>
+
+      <div class="lp-mock reveal" data-parallax="0.06" data-tilt>
+        <div class="lp-mock-bar"><span></span><span></span><span></span></div>
+        <div class="lp-mock-body">
+          <div class="lp-mock-side">
+            <div class="lp-mock-item active">📘 Guia de onboarding</div>
+            <div class="lp-mock-item sub">⚙️ Setup do ambiente</div>
+            <div class="lp-mock-item sub">🔑 Acessos e contas</div>
+            <div class="lp-mock-item">📐 Decisões de arquitetura</div>
+            <div class="lp-mock-item">📋 Atas de reunião</div>
+          </div>
+          <div class="lp-mock-doc">
+            <div class="lp-mock-title">Guia de onboarding</div>
+            <div class="lp-mock-line w90"></div>
+            <div class="lp-mock-line w70"><span class="lp-cursor c1">Ana</span></div>
+            <div class="lp-mock-line w80"></div>
+            <div class="lp-mock-line w60"><span class="lp-cursor c2">Bruno</span></div>
+            <div class="lp-mock-line w75"></div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="lp-features" id="recursos">
+    <div class="lp-container">
+      <h2 class="reveal">Tudo o que sua documentação precisa</h2>
+      <div class="lp-grid">
+        <div class="lp-card reveal">
+          <div class="lp-card-icon">⚡</div>
+          <h3>Tempo real de verdade</h3>
+          <p>Edição simultânea sem conflitos, com tecnologia CRDT. Veja o cursor e a seleção de cada colega enquanto digitam.</p>
+        </div>
+        <div class="lp-card reveal">
+          <div class="lp-card-icon">🌳</div>
+          <h3>Páginas hierárquicas</h3>
+          <p>Organize o conhecimento em árvore: páginas e subpáginas, como num wiki. A barra lateral atualiza ao vivo para todo mundo.</p>
+        </div>
+        <div class="lp-card reveal">
+          <div class="lp-card-icon">📝</div>
+          <h3>Markdown sempre à mão</h3>
+          <p>Todo documento é salvo também em Markdown no banco e pode ser exportado como arquivo .md com um clique.</p>
+        </div>
+        <div class="lp-card reveal">
+          <div class="lp-card-icon">🔒</div>
+          <h3>Contas e acesso seguro</h3>
+          <p>Login com e-mail e senha, sessões seguras e conexões WebSocket autenticadas. Só quem é do time entra.</p>
+        </div>
+        <div class="lp-card reveal">
+          <div class="lp-card-icon">👥</div>
+          <h3>Presença ao vivo</h3>
+          <p>Avatares mostram quem está na página agora. Cada pessoa tem uma cor — fácil de saber quem escreveu o quê.</p>
+        </div>
+        <div class="lp-card reveal">
+          <div class="lp-card-icon">↩️</div>
+          <h3>Desfazer inteligente</h3>
+          <p>Ctrl+Z desfaz apenas as suas edições, nunca as dos colegas. Escreva sem medo de atrapalhar ninguém.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="lp-how" id="como-funciona">
+    <div class="lp-container">
+      <h2 class="reveal">Como funciona</h2>
+      <div class="lp-steps">
+        <div class="lp-step reveal">
+          <div class="lp-step-num">1</div>
+          <h3>Crie sua conta</h3>
+          <p>Cadastro em segundos: nome, e-mail e senha. Sem cartão de crédito.</p>
+        </div>
+        <div class="lp-step reveal">
+          <div class="lp-step-num">2</div>
+          <h3>Convide o time</h3>
+          <p>Todo mundo entra no mesmo espaço e vê a mesma árvore de páginas, sempre atualizada.</p>
+        </div>
+        <div class="lp-step reveal">
+          <div class="lp-step-num">3</div>
+          <h3>Escrevam juntos</h3>
+          <p>Abram a mesma página e digitem ao mesmo tempo. Tudo converge, nada se perde.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="lp-final">
+    <div class="lp-container reveal">
+      <h2>Pronto para documentar <span class="lp-grad">de verdade</span>?</h2>
+      <p>Crie sua conta gratuita e convide o time. Em um minuto vocês estão escrevendo juntos.</p>
+      <a class="lp-btn lp-btn-primary lp-btn-lg" href="/login?tab=registro">Criar conta grátis</a>
+    </div>
+  </section>
+</main>
+
+<footer class="lp-footer">
+  <div class="lp-container">
+    <span><span class="lp-logo-mark">d.</span> documente</span>
+    <span>Documentação colaborativa em tempo real.</span>
+  </div>
+</footer>

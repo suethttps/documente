@@ -1,0 +1,23 @@
+<% content_for :title, "Recuperar senha — documente" %>
+<% content_for :body_class, "auth-body" %>
+
+<div class="lp-bg" aria-hidden="true">
+  <div class="lp-orb lp-orb-1"></div>
+  <div class="lp-orb lp-orb-2"></div>
+</div>
+
+<div class="auth-card">
+  <div class="auth-logo"><span class="lp-logo-mark">d.</span> documente</div>
+  <h2 style="margin: 0 0 6px; font-size: 20px;">Esqueceu sua senha?</h2>
+  <p style="margin: 0 0 8px; color: var(--ink-soft); font-size: 14.5px;">Enviaremos um link de redefinição para o seu e-mail.</p>
+
+  <%= form_with url: passwords_path do |form| %>
+    <label for="pw-email">E-mail</label>
+    <%= form.email_field :email_address, id: "pw-email", required: true, autofocus: true, autocomplete: "username", placeholder: "voce@empresa.com", value: params[:email_address] %>
+    <button class="auth-submit" type="submit">Enviar instruções</button>
+  <% end %>
+
+  <%= tag.div(flash[:alert], class: "auth-error") if flash[:alert] %>
+
+  <div class="auth-back"><a href="/login">← Voltar para o login</a></div>
+</div>

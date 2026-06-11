@@ -1,0 +1,24 @@
+<% content_for :title, "Nova senha — documente" %>
+<% content_for :body_class, "auth-body" %>
+
+<div class="lp-bg" aria-hidden="true">
+  <div class="lp-orb lp-orb-1"></div>
+  <div class="lp-orb lp-orb-2"></div>
+</div>
+
+<div class="auth-card">
+  <div class="auth-logo"><span class="lp-logo-mark">d.</span> documente</div>
+  <h2 style="margin: 0 0 6px; font-size: 20px;">Defina sua nova senha</h2>
+
+  <%= form_with url: password_path(params[:token]), method: :put do |form| %>
+    <label for="pw-new">Nova senha</label>
+    <%= form.password_field :password, id: "pw-new", required: true, autocomplete: "new-password", placeholder: "Mínimo 6 caracteres", minlength: 6, maxlength: 72 %>
+    <label for="pw-confirm">Repita a nova senha</label>
+    <%= form.password_field :password_confirmation, id: "pw-confirm", required: true, autocomplete: "new-password", placeholder: "Repita a senha", maxlength: 72 %>
+    <button class="auth-submit" type="submit">Salvar nova senha</button>
+  <% end %>
+
+  <%= tag.div(flash[:alert], class: "auth-error") if flash[:alert] %>
+
+  <div class="auth-back"><a href="/login">← Voltar para o login</a></div>
+</div>

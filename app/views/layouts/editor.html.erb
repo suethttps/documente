@@ -1,0 +1,22 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+  <head>
+    <title>documente</title>
+    <meta name="viewport" content="width=device-width,initial-scale=1">
+    <%= csrf_meta_tags %>
+    <%= csp_meta_tag %>
+
+    <link rel="icon" href="/icon.png" type="image/png">
+    <link rel="icon" href="/icon.svg" type="image/svg+xml">
+
+    <%= stylesheet_link_tag "quill.snow", "editor", "data-turbo-track": "reload" %>
+    <%# Build UMD do Quill (window.Quill) — precisa carregar antes do módulo do editor %>
+    <%= javascript_include_tag "quill-2.0.3", "data-turbo-track": "reload" %>
+    <%= javascript_importmap_tags %>
+    <%= javascript_import_module_tag "editor" %>
+  </head>
+
+  <body>
+    <%= yield %>
+  </body>
+</html>

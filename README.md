@@ -1,80 +1,104 @@
 # documente
 
-Sistema de documentação colaborativa em tempo real, estilo Confluence: contas com login, páginas hierárquicas, edição simultânea via WebSocket e exportação em Markdown.
+Sistema de documentação colaborativa em tempo real, estilo Confluence: contas com login, páginas hierárquicas, edição simultânea via WebSocket (Yjs/CRDT) e exportação em Markdown.
 
-## Estrutura (monorepo npm workspaces)
+**Monolito Ruby on Rails 8** — um único app serve a landing page, autenticação, API JSON, WebSocket (ActionCable) e o editor. Sem Node no deploy: o JavaScript vai por importmap + bundles vendorados.
 
-```
-documente/
-├── api/   — Express + WebSocket (Yjs) + Prisma + autenticação JWT
-│   ├── prisma/schema.prisma
-│   └── src/
-│       ├── index.js   — servidor HTTP/WS, rotas e upgrade autenticado
-│       ├── auth.js    — registro, login, JWT (cookie httpOnly + Bearer)
-│       ├── pages.js   — CRUD de páginas + export .md
-│       ├── collab.js  — sync Yjs + persistência (CRDT + Markdown) no banco
-│       └── events.js  — broadcast de mudanças na árvore de páginas
-└── app/   — frontend
-    ├── public/
-    │   ├── index.html — landing page
-    │   ├── login.html — login / criar conta
-    │   └── app.html   — editor colaborativo
-    └── src/main.js    — app do editor (Quill + Yjs)
-```
+## Stack
+
+| Camada      | Tecnologia                                              |
+|-------------|---------------------------------------------------------|
+| Backend     | Rails 8.1 (Ruby 3.4), SQLite por padrão                 |
+| Tempo real  | ActionCable (Solid Cable em produção) + Yjs (CRDT)      |
+| Autenticação| `rails generate authentication` (sessões + bcrypt)      |
+| Frontend    | Importmap + Propshaft, Quill 2, y-quill, quill-cursors  |
+| Deploy      | Kamal + Docker (gerados pelo `rails new`) + Thruster    |
 
 ## Como rodar
 
 ```bash
-npm install
-npm run db:push   # cria/atualiza o banco (SQLite por padrão)
-npm run dev       # build do frontend + inicia o servidor
+bundle install
+bin/rails db:prepare   # cria o banco e roda as migrations
+bin/rails server       # http://localhost:3000
 ```
 
-Abra http://localhost:4000 (porta configurável em `api/.env`):
-
-- `/` — landing page
+- `/` — landing page (parallax ✨)
 - `/login` — entrar / criar conta
-- `/app` — editor (exige login)
+- `/app` — editor colaborativo (exige login)
 
-## Escolhendo o banco de dados (Prisma)
+## Estrutura
 
-Padrão: **SQLite** (zero configuração, arquivo `api/prisma/dev.db`). Para trocar:
+```
+app/
+├── models/            user.rb (nome+cor), page.rb (árvore + ydoc + markdown), session.rb
+├── controllers/       sessions, registrations, passwords, profiles, pages (JSON), home, editor
+├── channels/
+│   ├── collab_channel.rb   — sync Yjs: relay de updates (base64) + persistência
+│   └── pages_channel.rb    — broadcast "pages-changed" para a árvore ao vivo
+├── views/
+│   ├── home/index.html.erb — landing com parallax/reveal/tilt
+│   ├── sessions/new        — login + criar conta (abas)
+│   └── editor/show         — editor (Quill + Yjs)
+├── javascript/
+│   ├── editor.js           — app do editor
+│   ├── editor/provider.js  — CableProvider: Yjs sobre ActionCable
+│   └── landing.js          — parallax, tilt 3D e reveal-on-scroll
+└── assets/
+    ├── javascripts/quill-2.0.3.js   — build UMD do Quill (vendorado)
+    └── stylesheets/                  — landing.css, editor.css, quill.snow.css
 
-1. Em `api/prisma/schema.prisma`, mude `provider = "sqlite"` para `"postgresql"` ou `"mysql"`.
-2. Em `api/.env`, ajuste a `DATABASE_URL` (exemplos em `api/.env.example`).
-3. Rode `npm run db:push`.
+vendor/javascript/editor-deps.js — bundle ESM único: yjs + y-quill +
+                                   y-protocols/awareness + quill-cursors +
+                                   quill-delta-to-markdown
+```
 
-`npm run db:studio` abre o Prisma Studio para inspecionar os dados.
+## Tempo real (como funciona)
+
+- **CollabChannel** (`page_id`): o servidor é um *relay* — retransmite updates Yjs (base64) entre os clientes da mesma página. Como CRDTs são idempotentes/comutativos, quem entra recebe o snapshot do banco + o estado completo reenviado pelos peers, e tudo converge.
+- **Persistência**: cada cliente salva (debounce de 1s) o snapshot CRDT (`pages.ydoc`) e o conteúdo convertido em **Markdown** (`pages.markdown`).
+- **PagesChannel**: qualquer mudança em página dispara `pages-changed`; os clientes recarregam a árvore.
+- Conexões WebSocket são autenticadas pelo cookie de sessão no `connect` — sem login, conexão recusada.
 
 ## Markdown
 
-- A cada edição, o conteúdo é salvo no banco em duas formas: snapshot CRDT (coluna `ydoc`, fonte da verdade da colaboração) e **Markdown** (coluna `markdown`, legível/pesquisável).
-- O botão **⬇ Exportar .md** no editor (ou `GET /api/pages/:id/export`) baixa a página como arquivo Markdown sempre com o conteúdo mais recente.
+- Cada página guarda o conteúdo em duas formas: snapshot CRDT (fonte da verdade da colaboração) e Markdown (legível/pesquisável).
+- **⬇ Exportar .md** no editor (ou `GET /pages/:id/export`) baixa a página como arquivo Markdown.
 
-## Autenticação
+## Banco de dados
 
-- Registro e login com e-mail/senha (hash bcrypt).
-- Sessão via JWT em cookie `httpOnly` (30 dias); a API também aceita `Authorization: Bearer <token>`.
-- As conexões WebSocket (conteúdo e eventos) são autenticadas no upgrade — sem token válido, conexão recusada (401).
+Padrão: **SQLite** (zero configuração — e é o caminho recomendado pelo Rails 8 até escala considerável). Para PostgreSQL/MySQL, ajuste `config/database.yml` e o `Gemfile` (`gem "pg"`), depois `bin/rails db:prepare`.
 
-## Tempo real
+```bash
+bin/rails db:prepare      # cria/migra
+bin/rails db:migrate      # só migra
+bin/rails console         # console
+bin/rails dbconsole       # SQL direto
+```
 
-- **Yjs (CRDT)**: edições simultâneas convergem sem conflito; cursores remotos com nome/cor de cada usuário; Ctrl+Z desfaz só as próprias edições.
-- Árvore de páginas sincronizada entre clientes via canal `/events`.
+## Deploy (Kamal)
 
-## Scripts
+O `rails new` já gerou `Dockerfile` e `config/deploy.yml`. Para subir num servidor com Docker:
 
-| Comando             | Descrição                                       |
-|---------------------|-------------------------------------------------|
-| `npm run dev`       | build do app + start da api                     |
-| `npm run build`     | gera `app/public/bundle.js` / `bundle.css`      |
-| `npm start`         | inicia a api (serve também o frontend)          |
-| `npm run db:push`   | aplica o schema Prisma no banco                 |
-| `npm run db:studio` | abre o Prisma Studio                            |
-| `node api/test-sync.js` | smoke test: login + 2 clientes convergindo + export .md |
+1. Edite `config/deploy.yml` (servidor, domínio, registry).
+2. Configure `KAMAL_REGISTRY_PASSWORD` e `RAILS_MASTER_KEY` em `.kamal/secrets`.
+3. `bin/kamal setup` (primeira vez) ou `bin/kamal deploy`.
 
-## Produção
+TLS automático via Let's Encrypt (proxy do Kamal) — necessário para cookies seguros e WSS.
 
-- Defina `JWT_SECRET` forte em `api/.env`.
-- Use PostgreSQL/MySQL (acima) para múltiplas instâncias/backup.
-- Sirva atrás de HTTPS (o cookie e o WSS dependem disso para segurança real).
+## Regenerar o bundle JS do editor (opcional)
+
+Só é preciso se quiser atualizar as libs do editor (requer Node apenas nessa hora):
+
+```bash
+mkdir /tmp/depbundle && cd /tmp/depbundle
+npm i yjs y-quill y-protocols quill-cursors quill-delta-to-markdown esbuild
+cat > entry.js <<'EOF'
+export * as Y from "yjs"
+export { QuillBinding } from "y-quill"
+export * as awarenessProtocol from "y-protocols/awareness"
+export { default as QuillCursors } from "quill-cursors"
+export { deltaToMarkdown } from "quill-delta-to-markdown"
+EOF
+npx esbuild entry.js --bundle --format=esm --minify --outfile=editor-deps.js
+cp editor-deps.js <repo>/vendor/javascript/editor-deps.js
+```

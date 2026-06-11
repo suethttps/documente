@@ -1,0 +1,62 @@
+<% content_for :title, "Entrar — documente" %>
+<% content_for :body_class, "auth-body" %>
+
+<div class="lp-bg" aria-hidden="true">
+  <div class="lp-orb lp-orb-1"></div>
+  <div class="lp-orb lp-orb-2"></div>
+</div>
+
+<div class="auth-card">
+  <div class="auth-logo"><span class="lp-logo-mark">d.</span> documente</div>
+
+  <div class="auth-tabs" data-controller="auth-tabs">
+    <button type="button" id="tab-login">Entrar</button>
+    <button type="button" id="tab-registro">Criar conta</button>
+  </div>
+
+  <%= form_with url: session_path, html: { id: "form-login" } do |form| %>
+    <label for="login-email">E-mail</label>
+    <%= form.email_field :email_address, id: "login-email", required: true, autocomplete: "username", placeholder: "voce@empresa.com", value: params[:email_address] %>
+    <label for="login-password">Senha</label>
+    <%= form.password_field :password, id: "login-password", required: true, autocomplete: "current-password", placeholder: "Sua senha", maxlength: 72 %>
+    <button class="auth-submit" type="submit">Entrar</button>
+  <% end %>
+
+  <%= form_with url: registration_path, html: { id: "form-registro", hidden: true } do |form| %>
+    <label for="reg-name">Nome</label>
+    <%= form.text_field :name, id: "reg-name", required: true, autocomplete: "name", placeholder: "Como o time te conhece", maxlength: 40 %>
+    <label for="reg-email">E-mail</label>
+    <%= form.email_field :email_address, id: "reg-email", required: true, autocomplete: "username", placeholder: "voce@empresa.com" %>
+    <label for="reg-password">Senha</label>
+    <%= form.password_field :password, id: "reg-password", required: true, autocomplete: "new-password", placeholder: "Mínimo 6 caracteres", minlength: 6, maxlength: 72 %>
+    <button class="auth-submit" type="submit">Criar conta grátis</button>
+  <% end %>
+
+  <%= tag.div(flash[:alert], class: "auth-error") if flash[:alert] %>
+  <%= tag.div(flash[:notice], class: "auth-error", style: "background: rgba(34,160,107,.14); border-color: rgba(34,160,107,.4); color: #7fe0b2") if flash[:notice] %>
+
+  <div class="auth-back">
+    <%= link_to "Esqueci minha senha", new_password_path %> · <a href="/">← Voltar para o site</a>
+  </div>
+</div>
+
+<script>
+  (() => {
+    const tabLogin = document.getElementById("tab-login")
+    const tabRegistro = document.getElementById("tab-registro")
+    const formLogin = document.getElementById("form-login")
+    const formRegistro = document.getElementById("form-registro")
+
+    function show (tab) {
+      const registro = tab === "registro"
+      tabLogin.classList.toggle("active", !registro)
+      tabRegistro.classList.toggle("active", registro)
+      formLogin.hidden = registro
+      formRegistro.hidden = !registro
+    }
+
+    tabLogin.addEventListener("click", () => show("login"))
+    tabRegistro.addEventListener("click", () => show("registro"))
+    show(new URLSearchParams(location.search).get("tab") === "registro" ? "registro" : "login")
+  })()
+</script>
