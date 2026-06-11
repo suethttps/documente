@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>documente</title>
+  <link rel="stylesheet" href="/bundle.css">
+  <link rel="stylesheet" href="/style.css">
+</head>
+<body>
+  <div id="app">
+    <aside id="sidebar">
+      <div id="brand">
+        <a href="/" title="Página inicial"><span id="brand-logo">d.</span></a>
+        <span id="brand-name">documente</span>
+      </div>
+      <button id="new-page-btn">+ Nova página</button>
+      <nav id="page-tree"></nav>
+      <div id="connection-status">
+        <span id="status-dot"></span>
+        <span id="status-text">conectando…</span>
+      </div>
+    </aside>
+
+    <main id="main">
+      <header id="topbar">
+        <div id="presence"></div>
+        <div id="user-self">
+          <span id="user-color"></span>
+          <input id="user-name" maxlength="40" title="Seu nome (visível para os outros)">
+          <button id="logout-btn" title="Sair">Sair</button>
+        </div>
+      </header>
+
+      <section id="page-view">
+        <div id="empty-state">
+          <h2>Bem-vindo ao documente</h2>
+          <p>Selecione uma página na barra lateral ou crie uma nova.<br>
+          Tudo é editado em tempo real — abra em duas abas para ver a mágica.</p>
+        </div>
+        <div id="page-container" hidden>
+          <div id="page-actions">
+            <button id="export-md-btn" title="Baixar esta página como arquivo Markdown">⬇ Exportar .md</button>
+          </div>
+          <input id="page-title" placeholder="Título da página">
+          <div id="page-meta"></div>
+          <div id="editor"></div>
+        </div>
+      </section>
+    </main>
+  </div>
+  <script src="/bundle.js"></script>
+</body>
+</html>

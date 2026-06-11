@@ -1,0 +1,6 @@
+node_modules/
+api/.env
+api/prisma/dev.db
+api/prisma/*.db-journal
+app/public/bundle.js
+app/public/bundle.css
